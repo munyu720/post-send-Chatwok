@@ -1,6 +1,6 @@
 <?php
 /*
-Plugin Name: Post to Chatwok
+Plugin Name: Post to Chatwork
 Plugin URI: 
 Description: Wordpressの投稿をチャットワークへ通知するPlugin
 Version: 0.1
