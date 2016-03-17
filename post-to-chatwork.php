@@ -17,8 +17,9 @@ function post_send_cw_message( $post_id ){
     if(!get_option('post_cw_api_token') || !get_option('post_cw_roomid'))return;
 
     $post = get_post($post_id);
-    $send_title = $post->post_title;
-    $send_content = $post->post_content;
+    $expert_num = get_option('post_send_cwr_expert');
+    $send_title = esc_html( $post->post_title );
+    $send_content = get_the_custom_excerpt( apply_filters('the_content', $post->post_content ) , $expert_num );
     $type = esc_html( get_post_type_object( get_post_type($post) )->labels->name );
     
     $body = get_option('post_send_cwr_messege'). "[info][title]".$send_title."　投稿元：(".$type. ")[/title]".$send_content."[/info]";
@@ -46,6 +47,7 @@ function register_post_send_cwr_settings() {
   register_setting( 'post_send_cwr-settings-group', 'post_cw_api_token' );
   register_setting( 'post_send_cwr-settings-group', 'post_cw_roomid' );
   register_setting( 'post_send_cwr-settings-group', 'post_send_cwr_messege' );
+  register_setting( 'post_send_cwr-settings-group', 'post_send_cwr_expert' );
 }
 function post_send_cw_admin_opt_page(){
     ?>
@@ -83,10 +85,20 @@ function post_send_cw_admin_opt_page(){
                         <label for="post_send_cwr_messege">通知メッセージ</label>
                     </th>
                     <td>
-                        <input id="api_token" type="text" class="regular-text ltr" name="post_send_cwr_messege" value="<?php echo get_option('post_send_cwr_messege'); ?>" />
+                        <input id="messege" type="text" class="regular-text ltr" name="post_send_cwr_messege" value="<?php echo get_option('post_send_cwr_messege'); ?>" />
                         <p class="description">通知の前に入るメッセージです。</p>
                     </td>
-                </tr>            </table>
+                </tr>
+                <tr valign="top">
+                    <th scope="row">
+                        <label for="post_send_cwr_expert">抜粋の文字数</label>
+                    </th>
+                    <td>
+                        <input id="expert" type="text" class="regular-text ltr" name="post_send_cwr_expert" value="<?php echo get_option('post_send_cwr_expert'); ?>" />
+                        <p class="description">通知する本文の抜粋の文字数です。</p>
+                    </td>
+                </tr>
+            </table>
             <input type="hidden" name="action" value="update" />
             <input type="hidden" name="page_options" value="post_cw_api_token,post_cw_roomid" />
             <p class="submit"><input type="submit" class="button-primary" value="<?php _e('Save Changes') ?>" /></p>
@@ -102,4 +114,16 @@ function add_wpbs_save_post_hooks() {
         // 追加されたカスタム投稿ごとにフックを追加
         add_action( 'publish_' . $post_type, 'post_send_cw_message', 1 );
     }
+}
+
+//本文抜粋を取得する関数
+//使用方法：http://nelog.jp/get_the_custom_excerpt
+function get_the_custom_excerpt($content, $length) {
+    $length = ($length ? $length : 70);//デフォルトの長さを指定する
+    $content =  preg_replace('/<!--more-->.+/is',"",$content); //moreタグ以降削除
+    $content =  strip_shortcodes($content);//ショートコード削除
+    $content =  strip_tags($content);//タグの除去
+    $content =  str_replace("&nbsp;","",$content);//特殊文字の削除（今回はスペースのみ）
+    $content =  mb_substr($content,0,$length);//文字列を指定した長さで切り取る
+    return $content;
 }
