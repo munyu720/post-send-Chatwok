@@ -30,6 +30,7 @@ function post_send_cw_message( $post_id ){
         'body' => $body
     );
     $headers = array(
+        'Content-Type: application/x-www-form-urlencoded',
         'X-ChatWorkToken: '.$key
     );
     $options = array('http' => array(
