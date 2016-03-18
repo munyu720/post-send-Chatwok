@@ -22,7 +22,7 @@ function post_send_cw_message( $post_id ){
     $send_content = get_the_custom_excerpt( apply_filters('the_content', $post->post_content ) , $expert_num );
     $type = esc_html( get_post_type_object( get_post_type($post) )->labels->name );
     
-    $body = get_option('post_send_cwr_messege'). "[info][title]".$send_title."　投稿元：(".$type. ")[/title]".$send_content."[/info]";
+    $body = get_option('post_send_cwr_messege'). '[info][title]'.$send_title.'　投稿元：('.$type. ')  ' . get_permalink($post_id) . '[/title]' . $send_content . '[/info]';
     $roomid = get_option('post_cw_roomid');
     $key = get_option('post_cw_api_token');
     $url = 'https://api.chatwork.com/v1/rooms/'.$roomid.'/messages';
